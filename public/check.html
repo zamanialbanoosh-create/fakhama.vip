@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>فحص كود الجائزة</title>
+  <style>
+    body{
+      margin:0;
+      font-family:Tahoma,Arial;
+      background:#111;
+      color:white;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      text-align:center;
+    }
+    .card{
+      width:100%;
+      max-width:430px;
+      background:#1b1b1b;
+      border:1px solid #d4af37;
+      border-radius:24px;
+      padding:25px;
+    }
+    .ok{color:#22c55e;font-size:28px;font-weight:bold}
+    .bad{color:#ef4444;font-size:28px;font-weight:bold}
+    .code{font-size:30px;color:#ffd700;font-weight:bold;direction:ltr}
+    .box{
+      background:#000;
+      border:1px dashed #d4af37;
+      border-radius:16px;
+      padding:15px;
+      margin-top:15px;
+      line-height:2;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>فحص كود الجائزة</h2>
+  <div id="result">جاري الفحص...</div>
+</div>
+
+<script>
+async function check(){
+  const params = new URLSearchParams(location.search);
+  const code = params.get("code");
+
+  if(!code){
+    document.getElementById("result").innerHTML =
+      '<div class="bad">❌ لا يوجد كود</div>';
+    return;
+  }
+
+  const res = await fetch("/api/check/" + encodeURIComponent(code));
+  const json = await res.json();
+
+  if(!json.valid){
+    document.getElementById("result").innerHTML =
+      '<div class="bad">❌ الكود غير صالح</div>' +
+      '<p>' + json.message + '</p>';
+    return;
+  }
+
+  const c = json.claim;
+
+  document.getElementById("result").innerHTML =
+    '<div class="ok">✅ الكود صحيح</div>' +
+    '<div class="box">' +
+    '<div>كود الجائزة</div>' +
+    '<div class="code">' + c.claimCode + '</div>' +
+    '<div>رقم العميل: ' + c.phone + '</div>' +
+    '<div>الجائزة: <b>' + c.prizeTitle + '</b></div>' +
+    '<div>الصلاحية إلى:<br>' + new Date(c.expiresAt).toLocaleString() + '</div>' +
+    '</div>';
+}
+
+check();
+</script>
+
+</body>
+</html>
