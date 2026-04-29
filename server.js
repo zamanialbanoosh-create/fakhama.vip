@@ -21,7 +21,17 @@ function nowMs(){return Date.now();}
 function normalizePhone(phone){return String(phone||"").trim().replace(/[^\d+]/g,"").replace(/^00/,"+");}
 function isValidPhone(phone){return /^(\+?\d{8,15})$/.test(phone);}
 function generateClaimCode(){return "TAJ-"+Math.floor(100000+Math.random()*900000);}
-function loadActivePrizes(){return readJson(PRIZES_FILE,[]).filter(p=>p&&p.active&&Number(p.weight)>0);}
+function loadActivePrizes(){
+  return [
+    {"title":"خصم 10%","code":"DISCOUNT10","weight":32,"active":true},
+    {"title":"خصم 1 دينار","code":"KWD1","weight":15,"active":true},
+    {"title":"تفصيل 1 دشداشة مجاناً","code":"TAILOR1PCFREE","weight":5,"active":true},
+    {"title":"NFC مجاني مع الطلب","code":"FREE_NFC","weight":27,"active":true},
+    {"title":"طقم نوم مجاناً","code":"PIJAMAFABRIC","weight":10,"active":true},
+    {"title":"خصم 15%","code":"DISCOUNT15","weight":8,"active":true},
+    {"title":"قماش بنغفوري مجاناً","code":"FREEFABRICSNG","weight":3,"active":true}
+  ].filter(p => p.active && Number(p.weight) > 0);
+}
 function pickPrize(){const prizes=loadActivePrizes();if(!prizes.length)return{title:"حظ أوفر المرة القادمة",code:"TRY_AGAIN",weight:1,active:true};const total=prizes.reduce((sum,p)=>sum+Number(p.weight||0),0);let r=Math.random()*total;for(const p of prizes){r-=Number(p.weight||0);if(r<=0)return p;}return prizes[0];}
 function findLast24hClaim(db,phone){const limit=nowMs()-24*60*60*1000;return db.claims.find(c=>c.phone===phone&&c.createdAtMs>=limit);}
 function findClaimByCode(db,code){return db.claims.find(c=>String(c.claimCode).toUpperCase()===String(code).toUpperCase());}
