@@ -8,7 +8,7 @@ const PORT=process.env.PORT||3000;
 const SHOP_WHATSAPP=process.env.SHOP_WHATSAPP||"965XXXXXXXX";
 const DATA_DIR=path.join(__dirname,"data");
 const DB_FILE=path.join(DATA_DIR,"claims.json");
-const PRIZES_FILE=path.join(__dirname,"prizes.json");
+const PRIZES_FILE=path.join(__dirname,"public","prizes.json");
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
