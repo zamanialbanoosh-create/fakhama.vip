@@ -59,4 +59,36 @@ function publicClaim(c){return{phone:c.phone,prizeTitle:c.prizeTitle,prizeCode:c
 app.get("/api/health",(req,res)=>res.json({success:true,message:"Rewards system is running"}));
 app.get("/api/prizes",(req,res)=>res.json({success:true,data:loadActivePrizes()}));
 app.post("/api/claim",(req,res)=>{try{const phone=normalizePhone(req.body.phone);if(!isValidPhone(phone))return res.status(400).json({success:false,message:"رقم الهاتف غير صحيح"});const db=readJson(DB_FILE,{claims:[]});const oldClaim=findLast24hClaim(db,phone);if(oldClaim)return res.json({success:true,reused:true,message:"لديك جائزة مسجلة خلال آخر 24 ساعة",shopWhatsApp:SHOP_WHATSAPP,claim:publicClaim(oldClaim)});const prize=pickPrize();let claimCode=generateClaimCode();while(findClaimByCode(db,claimCode))claimCode=generateClaimCode();const createdAtMs=nowMs();const expiresAtMs=createdAtMs+24*60*60*1000;const claim={id:crypto.randomUUID(),phone,prizeTitle:prize.title,prizeCode:prize.code,claimCode,createdAtMs,expiresAtMs,createdAt:new Date(createdAtMs).toISOString(),expiresAt:new Date(expiresAtMs).toISOString(),ip:req.ip};db.claims.push(claim);writeJson(DB_FILE,db);return res.json({success:true,reused:false,message:"تم تسجيل جائزتك بنجاح",shopWhatsApp:SHOP_WHATSAPP,claim:publicClaim(claim)});}catch(err){console.error("CLAIM ERROR:",err);return res.status(500).json({success:false,message:"Server error"});}});
+app.get("/api/check/:code", (req, res) => {
+  const code = String(req.params.code || "").toUpperCase();
+  const db = readJson(DB_FILE, { claims: [] });
+
+  const claim = db.claims.find(c =>
+    String(c.claimCode).toUpperCase() === code
+  );
+
+  if (!claim) {
+    return res.json({
+      success: false,
+      valid: false,
+      message: "الكود غير موجود"
+    });
+  }
+
+  if (claim.expiresAtMs < Date.now()) {
+    return res.json({
+      success: true,
+      valid: false,
+      message: "انتهت صلاحية الكود",
+      claim
+    });
+  }
+
+  return res.json({
+    success: true,
+    valid: true,
+    message: "الكود صحيح",
+    claim
+  });
+});
 app.listen(PORT,()=>{console.log("Fakhama VIP Rewards is running");console.log("Customer page: http://localhost:"+PORT);console.log("Shop WhatsApp:",SHOP_WHATSAPP);});
