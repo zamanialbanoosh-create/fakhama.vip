@@ -1,1 +1,66 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>إدارة الجوائز</title><style>body{margin:0;font-family:Tahoma,Arial;background:#111;color:white;padding:18px}.wrap{max-width:900px;margin:auto}.card{background:#1b1b1b;border:1px solid #444;border-radius:18px;padding:18px;margin-bottom:14px}h2{color:#ffd700}input,textarea,button{padding:12px;border-radius:10px;border:1px solid #555;background:#0b0b0b;color:#fff;font-size:16px;margin:5px}button{background:#ffd700;color:#111;font-weight:bold;cursor:pointer}.row{display:grid;grid-template-columns:2fr 1fr 1fr 90px 90px;gap:6px;align-items:center;margin-bottom:8px}.small{font-size:13px;color:#bbb}.danger{background:#ef4444;color:#fff}.green{background:#22c55e;color:#fff}@media(max-width:700px){.row{grid-template-columns:1fr}}</style></head><body><div class="wrap"><div class="card"><h2>إدارة نظام الجوائز</h2><input id="pin" type="password" placeholder="Admin PIN"><button onclick="loadAll()">دخول / تحديث</button><div class="small">PIN الافتراضي: 1234 — غيّره من متغير ADMIN_PIN في السيرفر.</div></div><div class="card"><h2>إعدادات المحل</h2><input id="shopName" placeholder="اسم المحل"><input id="shopWhatsapp" placeholder="واتساب المحل بدون +"><input id="chanceHours" type="number" placeholder="كل كم ساعة فرصة؟"><input id="couponHours" type="number" placeholder="صلاحية الجائزة بالساعات"><textarea id="storyText" style="width:100%" placeholder="نص التنبيه"></textarea><button onclick="saveSettings()">حفظ الإعدادات</button></div><div class="card"><h2>الجوائز</h2><div id="prizes"></div><button onclick="addPrize()">+ إضافة جائزة</button><button class="green" onclick="savePrizes()">حفظ الجوائز</button></div><div class="card"><h2>آخر الأكواد</h2><div id="claims"></div></div></div><script>let prizes=[];function p(){return document.getElementById("pin").value}async function loadAll(){const cfg=await(await fetch("/api/config")).json();const s=cfg.data;shopName.value=s.shopName;shopWhatsapp.value=s.shopWhatsapp;chanceHours.value=s.chanceHours;couponHours.value=s.couponHours;storyText.value=s.storyText;const pr=await(await fetch("/api/prizes")).json();prizes=pr.data||[];renderPrizes();const cl=await(await fetch("/api/admin/claims?pin="+encodeURIComponent(p()))).json();claims.innerHTML=(cl.data||[]).slice(0,50).map(c=>`<div class="small">${c.claimCode} | ${c.phone} | ${c.prizeTitle} | ${c.status}</div>`).join("")}function renderPrizes(){document.getElementById("prizes").innerHTML=prizes.map((x,i)=>`<div class="row"><input value="${x.title||""}" onchange="prizes[${i}].title=this.value" placeholder="الجائزة"><input value="${x.code||""}" onchange="prizes[${i}].code=this.value" placeholder="CODE"><input type="number" value="${x.weight||0}" onchange="prizes[${i}].weight=Number(this.value)" placeholder="weight"><label><input type="checkbox" ${x.active?"checked":""} onchange="prizes[${i}].active=this.checked"> فعال</label><button class="danger" onclick="prizes.splice(${i},1);renderPrizes()">حذف</button></div>`).join("")}function addPrize(){prizes.push({title:"جائزة جديدة",code:"NEW",weight:1,active:true,vipOnly:false});renderPrizes()}async function savePrizes(){const r=await fetch("/api/admin/prizes",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({pin:p(),prizes})});const j=await r.json();alert(j.success?"تم الحفظ":"خطأ: "+j.message);if(j.success)loadAll()}async function saveSettings(){const body={pin:p(),shopName:shopName.value,shopWhatsapp:shopWhatsapp.value,chanceHours:chanceHours.value,couponHours:couponHours.value,storyText:storyText.value};const r=await fetch("/api/admin/settings",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});const j=await r.json();alert(j.success?"تم الحفظ":"خطأ: "+j.message)}</script></body></html>
+<div class="settings-grid">
+
+  <div class="field">
+    <label>اسم المحل</label>
+    <input type="text" id="shopName" placeholder="TAJ AL FAKHAMA">
+  </div>
+
+  <div class="field">
+    <label>واتساب المحل</label>
+    <input type="text" id="shopWhatsapp" placeholder="965XXXXXXXX">
+  </div>
+
+  <div class="field">
+    <label>مدة صلاحية الجائزة (بالساعات)</label>
+    <input type="number" id="expireHours" placeholder="24">
+  </div>
+
+  <div class="field full">
+    <label>رسالة أسفل الجائزة</label>
+    <textarea id="footerMessage" rows="3">
+الجائزة لا تعتمد إلا بعد فحص الكود من الموظف.
+    </textarea>
+  </div>
+
+</div>
+
+<style>
+.settings-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:20px;
+  margin-top:20px;
+}
+
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.field label{
+  color:#ffd700;
+  font-size:15px;
+  font-weight:bold;
+  text-align:right;
+}
+
+.field input,
+.field textarea{
+  background:#000;
+  border:1px solid #444;
+  color:#fff;
+  border-radius:14px;
+  padding:14px;
+  font-size:16px;
+}
+
+.field textarea{
+  resize:vertical;
+  min-height:100px;
+}
+
+.full{
+  grid-column:1/-1;
+}
+</style>
