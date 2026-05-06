@@ -198,17 +198,29 @@ async function loadPrizes(){
 
         box.innerHTML="";
 
-        data.data.forEach(p=>{
+        window.prizesData = data.data;
 
-            box.innerHTML+=`
-            <div class="prize">
-                <div><b>الجائزة:</b> ${p.title}</div>
-                <div><b>الكود:</b> ${p.code}</div>
-                <div><b>الوزن:</b> ${p.weight}</div>
-            </div>
-            `;
+data.data.forEach((p, i) => {
+  box.innerHTML += `
+    <div class="prize">
+      <label>اسم الجائزة</label>
+      <input value="${p.title || ''}" onchange="prizesData[${i}].title=this.value">
 
-        });
+      <label>الكود</label>
+      <input value="${p.code || ''}" onchange="prizesData[${i}].code=this.value">
+
+      <label>الوزن / الاحتمال</label>
+      <input type="number" value="${p.weight || 0}" onchange="prizesData[${i}].weight=Number(this.value)">
+
+      <label>
+        <input type="checkbox" ${p.active ? "checked" : ""} onchange="prizesData[${i}].active=this.checked">
+        فعال
+      </label>
+    </div>
+  `;
+});
+
+box.innerHTML += `<br><button onclick="savePrizes()">حفظ الجوائز</button>`;
 
     }catch(err){
 
@@ -223,7 +235,30 @@ function saveSettings(){
     alert("تم حفظ الإعدادات");
 
 }
+async function savePrizes(){
 
+  const pin = document.getElementById("adminPin").value;
+
+  const res = await fetch("/api/admin/prizes",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body:JSON.stringify({
+      pin: pin,
+      prizes: window.prizesData
+    })
+  });
+
+  const data = await res.json();
+
+  if(data.success){
+    alert("تم حفظ الجوائز");
+    loadPrizes();
+  }else{
+    alert("خطأ: " + data.message);
+  }
+}
 </script>
 
 </body>
