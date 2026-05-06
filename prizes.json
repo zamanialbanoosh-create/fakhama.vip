@@ -1,9 +1,0 @@
-[
-{"title":"خصم 10%","code":"DISCOUNT10","weight":32,"active":true},
-{"title":"خصم 1 دينار","code":"KWD1","weight":15,"active":true},
-{"title":"تفصال 1 دشداشة مجانا","code":"TAILOR1PCFREE","weight":5,"active":true},
-{"title":"NFC مجانا مع الطلب","code":"FREE_NFC","weight":27,"active":true},
-{"title":"خام نوم مجانا","code":"PIJAMAFABRIC","weight":10,"active":true},
-{"title":"خصم 15%","code":"DISCOUNT15","weight":8,"active":true},
-{"title":"خام سينغافوري مجانا","code":"FREEFABRICSNG","weight":3,"active":true},
-]
