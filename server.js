@@ -16,10 +16,10 @@ function init(){
   {id:crypto.randomUUID(),title:"تفصيل 1 دشداشة مجاناً",code:"TAILOR_FREE",weight:3,active:true,vipOnly:true},
   {id:crypto.randomUUID(),title:"خصم 15%",code:"DISCOUNT15",weight:8,active:true,vipOnly:false}
  ]});
- if(!fs.existsSync(SETTINGS_FILE))writeJson(SETTINGS_FILE,{shopName:process.env.SHOP_NAME||"TAJ AL FAKHAMA",shopWhatsapp:process.env.SHOP_WHATSAPP||"96500000000",chanceHours:24,couponHours:24,storyText:"الجائزة لا تعتمد إلا بعد فحص الكود من الموظف.",vipPhones:[]});
+ if(!fs.existsSync(SETTINGS_FILE))writeJson(SETTINGS_FILE,{shopName:process.env.SHOP_NAME||"TAJ AL FAKHAMA",shopWhatsapp:process.env.SHOP_WHATSAPP||"96500000000",chanceHours:72,couponHours:72,storyText:"الجائزة لا تعتمد إلا بعد فحص الكود من الموظف.",vipPhones:[]});
 }
 init();
-function settings(){let s=readJson(SETTINGS_FILE,{});return{shopName:s.shopName||"TAJ AL FAKHAMA",shopWhatsapp:s.shopWhatsapp||"96500000000",chanceHours:Number(s.chanceHours||24),couponHours:Number(s.couponHours||24),storyText:s.storyText||"الجائزة لا تعتمد إلا بعد فحص الكود من الموظف.",vipPhones:Array.isArray(s.vipPhones)?s.vipPhones:[]}}
+function settings(){let s=readJson(SETTINGS_FILE,{});return{shopName:s.shopName||"TAJ AL FAKHAMA",shopWhatsapp:s.shopWhatsapp||"96500000000",chanceHours:Number(s.chanceHours||72),couponHours:Number(s.couponHours||72),storyText:s.storyText||"الجائزة لا تعتمد إلا بعد فحص الكود من الموظف.",vipPhones:Array.isArray(s.vipPhones)?s.vipPhones:[]}}
 function normalizePhone(p){return String(p||"").trim().replace(/[^\d+]/g,"").replace(/^00/,"+")}
 function validPhone(p){return /^(\+?\d{8,15})$/.test(p)}
 function now(){return Date.now()}
