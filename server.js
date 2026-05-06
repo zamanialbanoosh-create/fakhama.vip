@@ -30,7 +30,23 @@ function pickPrize(phone){let ps=prizesFor(phone);if(!ps.length)return{title:"ح
 function pub(c){return{id:c.id,phone:c.phone,prizeTitle:c.prizeTitle,prizeCode:c.prizeCode,claimCode:c.claimCode,status:c.status,createdAt:c.createdAt,expiresAt:c.expiresAt,usedAt:c.usedAt||null,usedBy:c.usedBy||"",orderNo:c.orderNo||""}}
 function lastClaim(db,phone){let limit=now()-settings().chanceHours*60*60*1000;return db.claims.find(c=>c.phone===phone&&c.createdAtMs>=limit)}
 function findClaim(db,code){return db.claims.find(c=>String(c.claimCode).toUpperCase()===String(code||"").toUpperCase())}
+app.post("/api/admin/login",(req,res)=>{
 
+  const { pin } = req.body;
+
+  if(pin !== ADMIN_PIN){
+
+    return res.status(401).json({
+      success:false
+    });
+
+  }
+
+  res.json({
+    success:true
+  });
+
+});
 app.get("/api/health",(req,res)=>res.json({success:true,message:"Fakhama VIP Rewards is running",settings:settings()}));
 app.get("/api/config",(req,res)=>{let s=settings();res.json({success:true,data:{shopName:s.shopName,shopWhatsapp:s.shopWhatsapp,chanceHours:s.chanceHours,couponHours:s.couponHours,storyText:s.storyText}})});
 app.get("/api/prizes",(req,res)=>res.json({success:true,data:(readJson(PRIZES_FILE,{prizes:[]}).prizes||[])}));
