@@ -9,12 +9,12 @@ function writeJson(file,data){fs.writeFileSync(file,JSON.stringify(data,null,2))
 function init(){
  if(!fs.existsSync(CLAIMS_FILE))writeJson(CLAIMS_FILE,{claims:[]});
  if(!fs.existsSync(PRIZES_FILE))writeJson(PRIZES_FILE,{prizes:[
-  {id:crypto.randomUUID(),title:"خصم 10%",code:"DISCOUNT10",weight:30,active:true,vipOnly:false},
+  {id:crypto.randomUUID(),title:"خصم 10%",code:"DISCOUNT10",weight:34,active:true,vipOnly:false},
   {id:crypto.randomUUID(),title:"خصم 1 دينار",code:"KWD1",weight:20,active:true,vipOnly:false},
-  {id:crypto.randomUUID(),title:"NFC مجاني مع الطلب",code:"FREE_NFC",weight:15,active:true,vipOnly:false},
-  {id:crypto.randomUUID(),title:"جيب AirPods مجاني",code:"AIRPODS",weight:8,active:true,vipOnly:true},
+  {id:crypto.randomUUID(),title:"NFC مجاني مع الطلب",code:"FREE_NFC",weight:25,active:true,vipOnly:false},
+  {id:crypto.randomUUID(),title:"خام نوم مجانا",code:"PIJAMAFABRIC",weight:10,active:true,vipOnly:true},
   {id:crypto.randomUUID(),title:"تفصيل 1 دشداشة مجاناً",code:"TAILOR_FREE",weight:3,active:true,vipOnly:true},
-  {id:crypto.randomUUID(),title:"حظ أوفر المرة القادمة",code:"TRY_AGAIN",weight:24,active:true,vipOnly:false}
+  {id:crypto.randomUUID(),title:"خصم 15%",code:"DISCOUNT15",weight:8,active:true,vipOnly:false}
  ]});
  if(!fs.existsSync(SETTINGS_FILE))writeJson(SETTINGS_FILE,{shopName:process.env.SHOP_NAME||"TAJ AL FAKHAMA",shopWhatsapp:process.env.SHOP_WHATSAPP||"96500000000",chanceHours:24,couponHours:24,storyText:"الجائزة لا تعتمد إلا بعد فحص الكود من الموظف.",vipPhones:[]});
 }
