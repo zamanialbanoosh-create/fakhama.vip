@@ -55,5 +55,20 @@ app.get("/api/check/:code",(req,res)=>{let db=readJson(CLAIMS_FILE,{claims:[]}),
 app.post("/api/redeem",(req,res)=>{let code=String(req.body.code||"").toUpperCase(),pin=String(req.body.pin||""),orderNo=String(req.body.orderNo||""),usedBy=String(req.body.usedBy||"staff");if(pin!==STAFF_PIN&&pin!==ADMIN_PIN)return res.status(403).json({success:false,message:"رمز الموظف غير صحيح"});let db=readJson(CLAIMS_FILE,{claims:[]}),c=findClaim(db,code);if(!c)return res.status(404).json({success:false,message:"الكود غير موجود"});if(c.status==="used")return res.status(409).json({success:false,message:"الكود مستخدم مسبقاً",claim:pub(c)});if(c.expiresAtMs<now()){c.status="expired";writeJson(CLAIMS_FILE,db);return res.status(409).json({success:false,message:"انتهت صلاحية الكود",claim:pub(c)})}c.status="used";c.usedAtMs=now();c.usedAt=new Date().toISOString();c.orderNo=orderNo;c.usedBy=usedBy;writeJson(CLAIMS_FILE,db);res.json({success:true,message:"تم تفعيل الجائزة بنجاح",claim:pub(c)})});
 app.get("/api/admin/claims",(req,res)=>{if(String(req.query.pin||"")!==ADMIN_PIN)return res.status(403).json({success:false,message:"Invalid PIN"});res.json({success:true,data:(readJson(CLAIMS_FILE,{claims:[]}).claims||[]).map(pub)})});
 app.post("/api/admin/prizes",(req,res)=>{if(String(req.body.pin||"")!==ADMIN_PIN)return res.status(403).json({success:false,message:"Invalid PIN"});let prizes=Array.isArray(req.body.prizes)?req.body.prizes:[];let clean=prizes.map(p=>({id:p.id||crypto.randomUUID(),title:String(p.title||"").trim(),code:String(p.code||"").trim(),weight:Number(p.weight||0),active:Boolean(p.active),vipOnly:Boolean(p.vipOnly)})).filter(p=>p.title&&p.weight>=0);writeJson(PRIZES_FILE,{prizes:clean});res.json({success:true,data:clean})});
+
 app.post("/api/admin/settings",(req,res)=>{if(String(req.body.pin||"")!==ADMIN_PIN)return res.status(403).json({success:false,message:"Invalid PIN"});let cur=settings();let next={shopName:String(req.body.shopName||cur.shopName),shopWhatsapp:String(req.body.shopWhatsapp||cur.shopWhatsapp),chanceHours:Number(req.body.chanceHours||cur.chanceHours),couponHours:Number(req.body.couponHours||cur.couponHours),storyText:String(req.body.storyText||cur.storyText),vipPhones:Array.isArray(req.body.vipPhones)?req.body.vipPhones.map(normalizePhone):cur.vipPhones};writeJson(SETTINGS_FILE,next);res.json({success:true,data:next})});
+app.post("/api/admin/login", (req, res) => {
+  const pin = String(req.body.pin || "");
+
+  if (pin !== ADMIN_PIN) {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid PIN"
+    });
+  }
+
+  return res.json({
+    success: true
+  });
+});
 app.listen(PORT,()=>console.log(`Fakhama VIP Rewards running on port ${PORT}`));
