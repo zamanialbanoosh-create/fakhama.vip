@@ -230,10 +230,32 @@ box.innerHTML += `<br><button onclick="savePrizes()">حفظ الجوائز</butt
 
 }
 
-function saveSettings(){
+async function saveSettings(){
 
+  const body = {
+    pin: document.getElementById("adminPin").value,
+    shopName: document.getElementById("shopName").value,
+    shopWhatsapp: document.getElementById("shopWhatsapp").value,
+    couponHours: Number(document.getElementById("couponHours").value),
+    chanceHours: Number(document.getElementById("couponHours").value),
+    storyText: document.getElementById("storyText").value
+  };
+
+  const res = await fetch("/api/admin/settings",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body:JSON.stringify(body)
+  });
+
+  const data = await res.json();
+
+  if(data.success){
     alert("تم حفظ الإعدادات");
-
+  }else{
+    alert("خطأ: " + data.message);
+  }
 }
 async function savePrizes(){
 
